@@ -78,6 +78,21 @@ percentage <- sapply(train, function(x) {length(which(is.na(x)))/nrow(train)})
 percentage <- percentage[catVar]
 catVar <- catVar[percentage < 0.05]
 percentage <- percentage[percentage < 0.05]
+library(lattice)
+meanDifference <- NULL
+for (i in 1:length(catVar)) {
+  xtab <- xtabs(train$SalePrice ~ eval(parse(text = paste("train$", colnames(train)[catVar[i]], sep = ""))))
+  count <- table(train[catVar[i]])
+  tab = xtab / count
+  meanDifference <- c(meanDifference, max(tab) - min(tab))
+  bwplot(eval(parse(text = colnames(train)[catVar[i]])) ~ SalePrice, data = train)
+}
+meanOrder <- order(meanDifference)
+meanDifference[meanOrder]
+meanOrder[(length(meanOrder) - 4):length(meanOrder)]
+"The 5 Most Powerful Predicting Categorical Variable is"
+colnames(train)[catVar[meanOrder[(length(meanOrder) - 4):length(meanOrder)]]]
+meanDifference[meanOrder[(length(meanOrder) - 4):length(meanOrder)]]
 
 
 #generate potential useful features from existing features
@@ -99,17 +114,3 @@ correlations[x, y] # the diagonal line is the correlations between two factors, 
 top5Order
 absolute[top5Order]
 # check to see that they are the same, the answer is correct
-
-meanDifference <- NULL
-for (i in 1:length(catVar)) {
-  xtab <- xtabs(train$SalePrice ~ eval(parse(text = paste("train$", colnames(train)[catVar[i]], sep = ""))))
-  count <- table(train[catVar[i]])
-  tab = xtab / count
-  meanDifference <- c(meanDifference, max(tab) - min(tab))
-}
-meanOrder <- order(meanDifference)
-meanDifference[meanOrder]
-meanOrder[(length(meanOrder) - 4):length(meanOrder)]
-"The 5 Most Powerful Predicting Categorical Variable is"
-colnames(train)[catVar[meanOrder[(length(meanOrder) - 4):length(meanOrder)]]]
-meanDifference[meanOrder[(length(meanOrder) - 4):length(meanOrder)]]
